@@ -6,7 +6,7 @@
 #include <string_view>
 
 #include "CNA/GraphicsCapability.hpp"
-#include "CNA/Internal/Renderers/Common/IGraphicsRenderer.hpp"
+#include "CNA/ShaderDialectEXT.hpp"
 #include "Microsoft/Xna/Framework/Graphics/BlendState.hpp"
 #include "Microsoft/Xna/Framework/Graphics/BufferUsage.hpp"
 #include "Microsoft/Xna/Framework/Graphics/DepthStencilState.hpp"
@@ -93,7 +93,7 @@ namespace CnaRts
          */
         std::vector<const char*> ShaderHeaders(GraphicsDevice& device)
         {
-            using CNA::Internal::Renderers::ShaderDialectEXT;
+            using CNA::ShaderDialectEXT;
             switch (device.GetShaderDialectEXT())
             {
                 case ShaderDialectEXT::GlslDesktop: return {kDesktopHeader};
