@@ -15,6 +15,8 @@ endif()
 # cna-rts drives ../cnanext (the CNA runtime) through the sibling
 # ../sharp-runtimenext checkout, exactly like cna-samples and cna-killer do, so a
 # single sibling checkout is fixed up by every consumer in the same session.
+# Both are cache paths: -DCNA_RTS_CNA_DIR=../cna -DCNA_SHARP_RUNTIME_ROOT=../sharp-runtime
+# builds against the plain checkouts instead.
 # ---------------------------------------------------------------------------
 
 if(EMSCRIPTEN)
@@ -33,7 +35,10 @@ set(CNA_BUILD_TESTS    OFF CACHE BOOL "Build CNA tests")
 set(CNA_BUILD_EXAMPLES OFF CACHE BOOL "Build CNA examples")
 set(SHARP_RUNTIME_BUILD_TESTS OFF CACHE BOOL "Build sharp-runtime tests")
 
-add_subdirectory(../cnanext CNA_BUILD)
+set(CNA_RTS_CNA_DIR
+    "${CMAKE_CURRENT_SOURCE_DIR}/../cnanext"
+    CACHE PATH "CNA checkout used by cna-rts")
+add_subdirectory("${CNA_RTS_CNA_DIR}" CNA_BUILD)
 
 add_executable(cna-rts
     src/Program.cpp
