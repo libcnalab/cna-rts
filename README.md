@@ -67,15 +67,17 @@ is — most of these designs were forced by the scale rather than chosen for ele
 
 ## Building
 
-`cna-rts` builds against sibling checkouts of `../cnanext` and `../sharp-runtimenext`, exactly like
-`cna-samples` and `cna-killer` do. `CMakeLists.txt` adds `../cnanext` as a subdirectory itself, so
-no extra setup is needed beyond having those repositories checked out next to this one (CNA in turn
-expects `../easy-gl` and `../meta-gl` for the OpenGL renderer).
+`cna-rts` adds CNA as a CMake subdirectory. The default paths are `../cnanext` and
+`../sharp-runtimenext`; set `CNA_RTS_CNA_DIR` and `CNA_SHARP_RUNTIME_ROOT` when using other
+checkouts. With this workspace's `libcnalab` and `libcna` directories, build against the current
+CNA and Sharp Runtime trees as follows:
 
 ```sh
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_COMPILER_LAUNCHER=ccache
-cmake --build build -j$(nproc)
+    -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+    -DCNA_RTS_CNA_DIR="$(realpath ../../libcna/cna)" \
+    -DCNA_SHARP_RUNTIME_ROOT="$(realpath ../../libcna/sharp-runtime)"
+cmake --build build --parallel 8
 ```
 
 Reuse the `build/` directory across sessions rather than reconfiguring from scratch — see the
@@ -84,6 +86,8 @@ workspace-root `CLAUDE.md` for why that matters here.
 The default renderer is `OPENGLES3` on desktop and `WEBGL2` under Emscripten; both resolve to CNA's
 EasyGL backend. Any renderer that reports `Instancing` and `MultiStreamVertexInput` and accepts
 GLSL will work; one that does not gets a clear message instead of a blank screen.
+The game requests XNA's `HiDef` graphics profile, which permits the benchmark's single draw call
+to contain up to one million instances.
 
 ---
 

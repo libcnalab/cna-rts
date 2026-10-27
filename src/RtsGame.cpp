@@ -4,7 +4,6 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
-#include <vector>
 
 #include "Microsoft/Xna/Framework/Color.hpp"
 #include "Palette.hpp"
@@ -12,10 +11,9 @@
 #include "Microsoft/Xna/Framework/Graphics/BlendState.hpp"
 #include "Microsoft/Xna/Framework/Graphics/DepthStencilState.hpp"
 #include "Microsoft/Xna/Framework/Graphics/GraphicsDevice.hpp"
+#include "Microsoft/Xna/Framework/Graphics/GraphicsProfile.hpp"
 #include "Microsoft/Xna/Framework/Graphics/RasterizerState.hpp"
 #include "Microsoft/Xna/Framework/Graphics/RenderTarget2D.hpp"
-#include "Microsoft/Xna/Framework/Graphics/SurfaceFormat.hpp"
-#include "Microsoft/Xna/Framework/Graphics/Texture2D.hpp"
 #include "Microsoft/Xna/Framework/Graphics/SamplerState.hpp"
 #include "Microsoft/Xna/Framework/Graphics/SpriteSortMode.hpp"
 #include "Microsoft/Xna/Framework/Input/ButtonState.hpp"
@@ -48,6 +46,8 @@ namespace CnaRts
     RtsGame::RtsGame(const CliOptions& options)
         : options_(options), graphics_(this)
     {
+        // Reach caps a draw at 65,535 instances; the benchmark submits up to one million.
+        graphics_.setGraphicsProfileProperty(GraphicsProfile::HiDef);
         graphics_.setPreferredBackBufferWidthProperty(options_.windowWidth);
         graphics_.setPreferredBackBufferHeightProperty(options_.windowHeight);
         graphics_.setSynchronizeWithVerticalRetraceProperty(options_.vsync);
@@ -539,14 +539,7 @@ namespace CnaRts
 
         try
         {
-            // The render target holds its pixels on the GPU; `SaveAsPng` encodes from CNA's
-            // CPU-side shadow, which only a `SetData` fills. So the frame is read back and
-            // written into an ordinary texture, and that texture is what gets encoded.
-            std::vector<Color> pixels(static_cast<std::size_t>(width) * height);
-            capture_->GetData(pixels.data(), static_cast<int>(pixels.size()));
-            Texture2D encoded(device, width, height, false, SurfaceFormat::Color);
-            encoded.SetData(pixels.data(), static_cast<int>(pixels.size()));
-            encoded.SaveAsPng(options_.screenshotPath);
+            capture_->SaveAsPng(options_.screenshotPath);
             std::cout << "cna-rts: wrote " << options_.screenshotPath << " (" << width << "x"
                       << height << ", frame " << frameIndex_ << ", tick "
                       << simulation_.CurrentTick() << ")\n";

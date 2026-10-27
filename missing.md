@@ -1,5 +1,12 @@
 # CNA defects and gaps found while building cna-rts
 
+**Current disposition (2026-10-27):** This is a historical inventory from the September
+`cnanext` checkout. In current CNA, render-target PNG/JPEG saving, EasyGL shader-dialect reporting,
+and direct RGBA byte uploads are implemented. The EasyGL custom 3D effect path is now exercised by
+the C1 render-target effect-source test. The later 100k/1M failure was a `cna-rts` profile choice:
+Microsoft XNA 4.0 limits a Reach draw to 65,535 instances, so `cna-rts` now requests HiDef. The
+current validation and test results are recorded in CNA's `plans/plan_cna_rts.md`.
+
 Everything below turned up while writing this benchmark against CNA, not from looking for it.
 There was no fuzzing and no test-suite run — that is what `cna-killer` is for. These are the
 things that made cna-rts refuse to draw, refuse to save a file, or take a detour, plus one gap in
