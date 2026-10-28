@@ -1,11 +1,26 @@
 # CNA defects and gaps found while building cna-rts
 
-**Current disposition (2026-10-27):** This is a historical inventory from the September
-`cnanext` checkout. In current CNA, render-target PNG/JPEG saving, EasyGL shader-dialect reporting,
-and direct RGBA byte uploads are implemented. The EasyGL custom 3D effect path is now exercised by
-the C1 render-target effect-source test. The later 100k/1M failure was a `cna-rts` profile choice:
-Microsoft XNA 4.0 limits a Reach draw to 65,535 instances, so `cna-rts` now requests HiDef. The
-current validation and test results are recorded in CNA's `plans/plan_cna_rts.md`.
+**Current disposition (2026-10-28):** This is a historical inventory from the September
+`cnanext` checkout. The findings were rechecked against current CNA on 2026-10-27:
+
+- Render-target PNG/JPEG saving, EasyGL shader-dialect reporting and direct RGBA byte uploads are
+  implemented. CNA commit `3b43bd868` also made the EasyGL C1 render-target effect-source leg use
+  a real custom 3D shader, compare ordinary and rendered textures, apply a non-identity uniform
+  and declare the `uRtFlipV` row correction. Its focused result was 4/4; the complete registered
+  fixture, the resolved-target save tests and `EasyGL_ShaderEffect_GLSL` passed.
+- The later 100k/1M failure was a `cna-rts` profile choice, not a CNA defect. Microsoft XNA 4.0
+  limits one Reach draw to 65,535 instances and HiDef to 1,048,575. Commit `5b5dc24` selects HiDef
+  before device creation and saves the capture RenderTarget2D directly.
+- The consumer validation built against that CNA checkout with OPENGLES3. The 10k headless run and
+  10k/100k/1M worker-count determinism checks passed. The private GPU run wrote a 640x480 PNG and
+  completed 10 measured frames at 10k, 100k and 1M entities with one draw call at every scale.
+- `TerrainRenderer.cpp` still fills a reusable 64-row `std::vector<Color>` before each upload.
+  Current CNA accepts the same SurfaceFormat::Color payload as exact RGBA bytes, so this may be
+  simplified later without changing behavior; it is not a correctness or performance blocker.
+
+The custom 3D result above is an EasyGL result. SDL_GPU's custom-effect slot remains SpriteBatch
+only, and no claim about another renderer family follows without its own measured shader contract.
+The one observed window-size mismatch below still has no reproduction and therefore no ticket.
 
 Everything below turned up while writing this benchmark against CNA, not from looking for it.
 There was no fuzzing and no test-suite run — that is what `cna-killer` is for. These are the
